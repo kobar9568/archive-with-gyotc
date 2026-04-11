@@ -2,6 +2,7 @@ const MENU_ID = "archive-with-gyotc";
 const MENU_TITLE = "Archive with gyotc";
 const DEFAULT_SETTINGS = {
   replaceTweetUsernameWithI: false,
+  trimBirdwatchQueryParams: true,
 };
 
 function ensureMenu() {
@@ -37,6 +38,25 @@ function isTweetStatusUrl(url) {
   return segments.length >= 3 && segments[1] === "status" && segments[2].length > 0;
 }
 
+function isBirdwatchUrl(url) {
+  const hostname = url.hostname.toLowerCase();
+  const supportedHosts = new Set([
+    "x.com",
+    "www.x.com",
+    "mobile.x.com",
+    "twitter.com",
+    "www.twitter.com",
+    "mobile.twitter.com",
+  ]);
+
+  if (!supportedHosts.has(hostname)) {
+    return false;
+  }
+
+  const segments = url.pathname.split("/").filter(Boolean);
+  return segments.length >= 3 && segments[0] === "i" && segments[1] === "birdwatch" && segments[2] === "t" && segments[3] && segments[3].length > 0;
+}
+
 function replaceTweetUsernameWithI(pageUrl) {
   let url;
   try {
@@ -56,14 +76,38 @@ function replaceTweetUsernameWithI(pageUrl) {
   return url.toString();
 }
 
+function trimBirdwatchQueryParams(pageUrl) {
+  let url;
+  try {
+    url = new URL(pageUrl);
+  } catch (error) {
+    console.error("Invalid birdwatch URL:", pageUrl, error);
+    return pageUrl;
+  }
+
+  if (!isBirdwatchUrl(url)) {
+    return pageUrl;
+  }
+
+  url.search = "";
+  url.hash = "";
+  return url.toString();
+}
+
 async function transformPageUrl(pageUrl) {
   const settings = await browser.storage.local.get(DEFAULT_SETTINGS);
 
-  if (settings.replaceTweetUsernameWithI) {
-    return replaceTweetUsernameWithI(pageUrl);
+  let transformedUrl = pageUrl;
+
+  if (settings.trimBirdwatchQueryParams) {
+    transformedUrl = trimBirdwatchQueryParams(transformedUrl);
   }
 
-  return pageUrl;
+  if (settings.replaceTweetUsernameWithI) {
+    transformedUrl = replaceTweetUsernameWithI(transformedUrl);
+  }
+
+  return transformedUrl;
 }
 
 function buildArchiveUrl(pageUrl) {

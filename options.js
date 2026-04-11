@@ -1,13 +1,16 @@
 const DEFAULT_SETTINGS = {
   replaceTweetUsernameWithI: false,
+  trimBirdwatchQueryParams: true,
 };
 
-const checkbox = document.getElementById("replaceTweetUsernameWithI");
+const replaceTweetUsernameCheckbox = document.getElementById("replaceTweetUsernameWithI");
+const trimBirdwatchQueryParamsCheckbox = document.getElementById("trimBirdwatchQueryParams");
 const status = document.getElementById("status");
 
 async function restoreOptions() {
   const settings = await browser.storage.local.get(DEFAULT_SETTINGS);
-  checkbox.checked = Boolean(settings.replaceTweetUsernameWithI);
+  replaceTweetUsernameCheckbox.checked = Boolean(settings.replaceTweetUsernameWithI);
+  trimBirdwatchQueryParamsCheckbox.checked = Boolean(settings.trimBirdwatchQueryParams);
 }
 
 let statusTimer = null;
@@ -23,10 +26,12 @@ function showStatus(message) {
 
 async function saveOptions() {
   await browser.storage.local.set({
-    replaceTweetUsernameWithI: checkbox.checked,
+    replaceTweetUsernameWithI: replaceTweetUsernameCheckbox.checked,
+    trimBirdwatchQueryParams: trimBirdwatchQueryParamsCheckbox.checked,
   });
   showStatus("保存しました。");
 }
 
-checkbox.addEventListener("change", saveOptions);
+replaceTweetUsernameCheckbox.addEventListener("change", saveOptions);
+trimBirdwatchQueryParamsCheckbox.addEventListener("change", saveOptions);
 document.addEventListener("DOMContentLoaded", restoreOptions);
