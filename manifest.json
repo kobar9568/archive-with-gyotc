@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Archive with gyotc",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Adds a context menu item that opens https://gyo.tc/<current-page-url> in a new tab.",
   "permissions": ["contextMenus", "storage"],
   "background": {
@@ -15,5 +15,10 @@
     "gecko": {
       "id": "archive-with-gyotc@kobar9568.com"
     }
+  },
+  "icons": {
+    "48": "static/icon-48.png",
+    "96": "static/icon-96.png",
+    "128": "static/icon-128.png"
   }
 }
